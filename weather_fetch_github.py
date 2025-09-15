@@ -106,7 +106,7 @@ def fetch_S_weather():
             "cloud_cover_between_2_to_7_km",
             "cloud_cover_below_1000_ft",
             "FF",  # Wind speed
-            "TTT"  # Temperature
+            "TTT"  # Temperature 2m above surface
         ],
         settings=settings,
         mosmix_type=DwdMosmixType.SMALL,
@@ -189,12 +189,6 @@ def main():
         f"Press Ctrl+C to stop."
     )
 
-    print(
-        f"Scheduler started.\n"
-        f"Base directory for data: {BASE_DIR}\n"
-        f"MOSMIX-L fetch every 30 minutes; MOSMIX-S fetch every 15 minutes.\n"
-        f"Press Ctrl+C to stop."
-    )
     try:
         while True:
             schedule.run_pending()

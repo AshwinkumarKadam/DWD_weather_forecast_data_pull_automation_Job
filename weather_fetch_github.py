@@ -189,6 +189,12 @@ def main():
         f"Press Ctrl+C to stop."
     )
 
+    print(
+        f"Scheduler started.\n"
+        f"Base directory for data: {BASE_DIR}\n"
+        f"MOSMIX-L fetch every 30 minutes; MOSMIX-S fetch every 15 minutes.\n"
+        f"Press Ctrl+C to stop."
+    )
     try:
         while True:
             schedule.run_pending()

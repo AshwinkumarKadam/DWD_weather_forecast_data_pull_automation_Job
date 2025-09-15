@@ -126,6 +126,48 @@ def fetch_S_weather():
 
     print(f"[MOSMIX-S] Data saved to: {path}")
 
+def combined_latest_forecast():
+    """
+    Combine all MOSMIX-S forecast files, keeping only the latest issue for each forecast target time.
+    Saves the compiled latest forecasts to a master Excel file.
+    """
+
+    files= sorted(glob.glob(os.path.join(r'D:\thesis data files\Automated_data_download_MOSMIX_X009\MOSMIX-S', "*.xlsx")))
+
+    # %%
+    dataframes = []
+
+    for file in files:
+        # Parse issue time from filename (assuming 'S_YYYY_MM_DD_HH_MM_SS')
+        basename = os.path.basename(file)
+        parts = basename.split('_')
+        issue_time = pd.to_datetime('_'.join(parts[1:]), format='%Y_%m_%d_%H_%M_%S.xlsx')
+        
+        # Load forecast data
+        df = pd.read_excel(file)
+        # Add a column for issue time
+        df['issue_time'] = issue_time
+        
+        dataframes.append(df)
+
+    # Concatenate all loaded data
+    all_data = pd.concat(dataframes, ignore_index=True)
+
+
+
+    # %%
+    # For each forecast target time, keep only the last/latest issue:
+    # 1. Sort by 'date' (target), then by 'issue_time'
+    all_data = all_data.sort_values(by=['date', 'issue_time'])
+
+    # 2. For each 'date', keep the row with the latest (max) 'issue_time' NOT greater than 'date'
+    all_data = all_data[all_data['issue_time'] <= all_data['date']]
+
+    # 3. Group by forecasted 'date'—and keep the last (latest) entry for each date
+    master_df = all_data.groupby('date').tail(1).reset_index(drop=True)
+
+    master_df.to_excel(r'D:\thesis data files\Automated_data_download_MOSMIX_X009\combined_S_master\compiled_latest_forecast.xlsx', index=False)
+
 
 def main():
     """
@@ -138,6 +180,7 @@ def main():
     """
     schedule.every(30).minutes.do(fetch_L_weather)
     schedule.every(15).minutes.do(fetch_S_weather)
+    schedule.every(60).minutes.do(combined_latest_forecast)
 
     print(
         f"Scheduler started.\n"
